@@ -74,6 +74,7 @@ export default function PatientForm() {
                 <div key={name} style={{ marginBottom: "10px" }}>
                     <label>{label}</label><br />
                     <input
+
                         type={type}
                         name={name}
                         value={formData[name]}
