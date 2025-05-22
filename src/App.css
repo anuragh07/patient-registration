@@ -1,5 +1,5 @@
 .full-screen {
-  height: 100vh;
+  /* height: 200vh; */
   width: 100vw;
   padding: 30px;
   background-color: #f9f9f9;
@@ -8,7 +8,7 @@
 
 .form-container {
   max-width: 900px;
-  height: 787px;
+  height: 887px;
   margin: auto;
   background-color: white;
   padding: 30px;
@@ -106,7 +106,7 @@
 }
 
 .form-wrapper {
-  height: 150vh;
+  /* height: 150vh; */
   width: 100vw;
   display: flex;
   justify-content: center;
@@ -229,7 +229,7 @@ input {
 }
 
 .textInsurance {
-  text-align: left;
+  text-align: center;
   margin: 0;
   margin-bottom: 20px;
 }

@@ -10,7 +10,18 @@ export default function PatientForm() {
         insuranceProvider: "", policyNumber: ""
     });
 
-    const [activeSection, setActiveSection] = useState("personal")
+    const [activeSection, setActiveSection] = useState("personal");
+    const requiredFields = ["FirstName", "LastName", "dob", "gender", "contact", "emergencyContact", "conditions", "reason"];
+
+    const calculateProgress = () => {
+        const filledCount = requiredFields.reduce((count, field) => {
+            return formData[field] && formData[field].toString().trim() !== "" ? count + 1 : count;
+        }, 0);
+
+        return Math.round((filledCount / requiredFields.length) * 100);
+    };
+
+    const progress = calculateProgress();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -25,8 +36,7 @@ export default function PatientForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const required = ["FirstName", "LastName", "dob", "gender", "contact", "emergencyContact", "conditions", "reason"];
-        const missing = required.filter(field => !formData[field]);
+        const missing = requiredFields.filter(field => !formData[field]);
         if (missing.length) return alert(`Missing fields: ${missing.join(", ")}`);
 
         await db.exec(`
@@ -43,9 +53,6 @@ export default function PatientForm() {
             );
         `);
 
-        const res = await db.exec("SELECT * FROM patients");
-        console.log(res);
-
         alert("Patient registered!");
 
         setFormData({
@@ -59,26 +66,58 @@ export default function PatientForm() {
 
     return (
         <div className="form-wrapper">
-            {/* <h2>Patient Registration Form</h2> */}
             <div className="form-container">
-                <div className="heading"><h2 className="form-title">Patient Registration</h2></div>
 
-                <p className="text">Please complete the form below with your personal, medical, and insurance information. <br />Fields marked with <span className="required">*</span> are required.</p>
-                <br />
+                <div className="heading" style={{ backgroundColor: '#007BFF', color: 'white', padding: '10px 20px', borderRadius: '5px' }}>
+                    <h2 className="form-title" style={{ textAlign: 'left', margin: 0 }}>Patient Registration</h2>
+                </div>
+
+                <p className="text" style={{ textAlign: 'left', maxWidth: '700px', margin: '10px auto' }}>
+                    Please complete the form below with your personal, medical, and insurance information.
+                </p>
+                <p className="text2" style={{ textAlign: 'left', maxWidth: '700px', margin: '10px auto 20px' }}>
+                    Fields marked with <span className="required">*</span> are required.
+                </p>
+
+                <div style={{
+                    maxWidth: '700px',
+                    margin: '0 auto 20px',
+                    height: '20px',
+                    backgroundColor: '#eee',
+                    borderRadius: '10px',
+                    overflow: 'hidden',
+                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
+                }}>
+                    <div
+                        style={{
+                            height: '100%',
+                            width: `${progress}%`,
+                            backgroundColor: '#007BFF',
+                            transition: 'width 0.4s ease-in-out'
+                        }}
+                    />
+                </div>
+                <div style={{ maxWidth: '700px', margin: '0 auto 20px', textAlign: 'right', fontWeight: '600', color: '#007BFF' }}>
+                    {progress}% completed
+                </div>
+
                 <div className="button-group">
                     <button
+                        type="button"
                         onClick={() => setActiveSection("personal")}
                         className={activeSection === "personal" ? "active-section" : ""}
                     >
                         Personal Information
                     </button>
                     <button
+                        type="button"
                         onClick={() => setActiveSection("medical")}
                         className={activeSection === "medical" ? "active-section" : ""}
                     >
                         Medical History
                     </button>
                     <button
+                        type="button"
                         onClick={() => setActiveSection("insurance")}
                         className={activeSection === "insurance" ? "active-section" : ""}
                     >
@@ -98,7 +137,6 @@ export default function PatientForm() {
                                     <label> Last Name *</label>
                                     <input name="LastName" value={formData.LastName} onChange={handleChange} required />
                                 </div>
-
                             </div>
 
                             <div className="form-row">
@@ -137,9 +175,7 @@ export default function PatientForm() {
                                 </div>
                             </div>
 
-
                             <div className="form-row">
-
                                 <div className="form-group">
                                     <label>Emergency Contact Phone *</label>
                                     <input name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} required />
@@ -147,7 +183,6 @@ export default function PatientForm() {
                             </div>
                         </>
                     )}
-
 
                     {activeSection === "medical" && (
                         <>
@@ -163,13 +198,14 @@ export default function PatientForm() {
                                 <label>Reason for Visit *</label>
                                 <input className="medical-input" name="reason" value={formData.reason} onChange={handleChange} required />
                             </div>
-
                         </>
                     )}
 
                     {activeSection === "insurance" && (
                         <>
-
+                            <p className="textInsurance" style={{ textAlign: 'left' }}>
+                                Insurance information is optional. If you don't have insurance or prefer not to provide this information now, you can skip this section.
+                            </p>
                             <div className="form-group">
                                 <label>Insurance Provider Name</label>
                                 <input className="insurance-input" name="insuranceProvider" value={formData.insuranceProvider} onChange={handleChange} />
@@ -178,7 +214,6 @@ export default function PatientForm() {
                                 <label>Policy Number</label>
                                 <input className="insurance-input" name="policyNumber" value={formData.policyNumber} onChange={handleChange} />
                             </div>
-
                         </>
                     )}
 

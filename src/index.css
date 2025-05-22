@@ -5,7 +5,10 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* background-color: #242424; */
+  /* REMOVED or changed to transparent */
+  background-color: transparent;
+  /* Set to transparent for the root/body */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,6 +32,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  /* If you want the body background to also be transparent, ensure no other styles override it.
+     The :root background often applies to the body implicitly if not set on body explicitly. */
 }
 
 h1 {
@@ -43,7 +48,10 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  /* background-color: #1a1a1a; */
+  /* REMOVED or changed to transparent */
+  background-color: transparent;
+  /* Set to transparent for buttons */
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -60,7 +68,10 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    /* background-color: #ffffff; */
+    /* You might want to remove this if you don't want a white background in light mode either */
+    background-color: transparent;
+    /* Also set to transparent for light mode */
   }
 
   a:hover {
@@ -68,6 +79,9 @@ button:focus-visible {
   }
 
   button {
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9; */
+    /* REMOVED or changed to transparent */
+    background-color: transparent;
+    /* Also set to transparent for buttons in light mode */
   }
 }
