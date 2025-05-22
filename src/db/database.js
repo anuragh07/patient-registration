@@ -4,21 +4,23 @@ const db = new PGlite('idb://my-pgdata');
 
 await db.exec(`
   CREATE TABLE IF NOT EXISTS patients (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  contact TEXT NOT NULL,
-  dob TEXT NOT NULL,
-  age INTEGER,
-  bloodGroup TEXT NOT NULL,
-  gender TEXT NOT NULL,
-  address TEXT NOT NULL,
-  emergencyContact TEXT NOT NULL,
-  conditions TEXT NOT NULL,
-  surgeries TEXT,
-  reason TEXT NOT NULL,
-  insuranceProvider TEXT,
-  policyNumber TEXT
-);
+    id SERIAL PRIMARY KEY,
+    firstname TEXT NOT NULL,
+    lastname TEXT NOT NULL,
+    contact TEXT NOT NULL,
+    dob TEXT NOT NULL,
+    age INTEGER,
+    bloodgroup TEXT,
+    gender TEXT NOT NULL,
+    address TEXT,
+    emergencycontact TEXT NOT NULL,
+    conditions TEXT NOT NULL,
+    surgeries TEXT,
+    reason TEXT NOT NULL,
+    insuranceprovider TEXT,
+    policynumber TEXT
+  );
 `);
+
 
 export default db;
