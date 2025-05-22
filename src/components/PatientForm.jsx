@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import db from "../db/database";
 import '../App.css';
 
@@ -11,6 +11,7 @@ export default function PatientForm() {
     });
 
     const [activeSection, setActiveSection] = useState("personal");
+    const [fadeKey, setFadeKey] = useState(0);
     const requiredFields = ["FirstName", "LastName", "dob", "gender", "contact", "emergencyContact", "conditions", "reason"];
 
     const calculateProgress = () => {
@@ -64,24 +65,13 @@ export default function PatientForm() {
         setActiveSection("personal");
     };
 
-    const handleNext = () => {
-        if (activeSection === "personal") {
-            if (!formData.FirstName || !formData.LastName || !formData.dob || !formData.gender || !formData.contact || !formData.emergencyContact) {
-                alert("Please fill all required personal fields");
-                return;
-            }
-            setActiveSection("medical");
-        } else if (activeSection === "medical") {
-            if (!formData.conditions || !formData.reason) {
-                alert("Please fill all required medical fields");
-                return;
-            }
-            setActiveSection("insurance");
-        }
+    const changeSection = (section) => {
+        setActiveSection(section);
+        setFadeKey(prev => prev + 1);  // trigger animation by key change
     };
 
     return (
-        <div className="form-wrapper">
+        <div className="form-wrapper fade-on-load">
             <div className="form-container">
                 <div className="heading" style={{ backgroundColor: '#007BFF', color: 'white', padding: '10px 20px', borderRadius: '5px' }}>
                     <h2 className="form-title" style={{ textAlign: 'left', margin: 0 }}>Patient Registration</h2>
@@ -116,21 +106,21 @@ export default function PatientForm() {
                 <div className="button-group">
                     <button
                         type="button"
-                        onClick={() => setActiveSection("personal")}
+                        onClick={() => changeSection("personal")}
                         className={`section-button ${activeSection === "personal" ? "active-section" : ""}`}
                     >
                         Personal Information
                     </button>
                     <button
                         type="button"
-                        onClick={() => setActiveSection("medical")}
+                        onClick={() => changeSection("medical")}
                         className={`section-button ${activeSection === "medical" ? "active-section" : ""}`}
                     >
                         Medical Details
                     </button>
                     <button
                         type="button"
-                        onClick={() => setActiveSection("insurance")}
+                        onClick={() => changeSection("insurance")}
                         className={`section-button ${activeSection === "insurance" ? "active-section" : ""}`}
                     >
                         Health Insurance
@@ -138,127 +128,121 @@ export default function PatientForm() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="patient-form">
-                    {activeSection === "personal" && (
-                        <>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label> First Name *</label>
-                                    <input name="FirstName" value={formData.FirstName} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label> Last Name *</label>
-                                    <input name="LastName" value={formData.LastName} onChange={handleChange} required />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Date of Birth *</label>
-                                    <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label>Age</label>
-                                    <input name="age" value={formData.age} readOnly />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Gender *</label>
-                                    <input name="gender" value={formData.gender} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label>Blood Group</label>
-                                    <input name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Address</label>
-                                    <input name="address" id="addressInput" value={formData.address} onChange={handleChange} />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Phone Number *</label>
-                                    <input name="contact" value={formData.contact} onChange={handleChange} required />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Emergency Contact Phone *</label>
-                                    <input name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} required />
-                                </div>
-                            </div>
-                        </>
-                    )}
-                    {activeSection === "medical" && (
-                        <>
-                            <div className="form-group">
-                                <label>Existing Medical Conditions *</label>
-                                <input className="medical-input" name="conditions" value={formData.conditions} onChange={handleChange} required />
-                            </div>
-                            <div className="form-group">
-                                <label>Past Surgeries</label>
-                                <input className="medical-input" name="surgeries" value={formData.surgeries} onChange={handleChange} />
-                            </div>
-                            <div className="form-group">
-                                <label>Reason for Visit *</label>
-                                <input className="medical-input" name="reason" value={formData.reason} onChange={handleChange} required />
-                            </div>
-                            <div className="form-group">
-                                <label>Date of Visit *</label>
-                                <input
-                                    type="date"
-                                    className="medical-input"
-                                    name="dateOfVisit"
-                                    value={formData.dateOfVisit}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </>
-                    )}
-                    {activeSection === "insurance" && (
-                        <>
-                            <div className="form-group">
-                                <label>Insurance Provider Name</label>
-                                <input className="insurance-input" name="insuranceProvider" value={formData.insuranceProvider} onChange={handleChange} />
-                            </div>
-                            <div className="form-group">
-                                <label>Policy Number</label>
-                                <input className="insurance-input" name="policyNumber" value={formData.policyNumber} onChange={handleChange} />
-                            </div>
-                        </>
-                    )}
-                    {activeSection === "personal" && (
-                        <button type="button" className="submit-button" onClick={() => {
-                            if (!formData.FirstName || !formData.LastName || !formData.dob || !formData.gender || !formData.contact || !formData.emergencyContact) {
-                                alert("Please fill all required personal fields");
-                            } else {
-                                setActiveSection("medical");
-                            }
-                        }}>
-                            Next: Medical Background
-                        </button>
-                    )}
 
-                    {activeSection === "medical" && (
-                        <button type="button" className="submit-button" onClick={() => {
-                            if (!formData.conditions || !formData.reason) {
-                                alert("Please fill all required medical fields");
-                            } else {
-                                setActiveSection("insurance");
-                            }
-                        }}>
-                            Next: Insurance Details
-                        </button>
-                    )}
-
-                    {activeSection === "insurance" && (
-                        <button type="submit" className="submit-button" disabled={progress !== 100}>
-                            Submit
-                        </button>
-                    )}
-
+                    <div key={fadeKey} className="fade-in">
+                        {activeSection === "personal" && (
+                            <>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label> First Name *</label>
+                                        <input name="FirstName" value={formData.FirstName} onChange={handleChange} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label> Last Name *</label>
+                                        <input name="LastName" value={formData.LastName} onChange={handleChange} required />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Date of Birth *</label>
+                                        <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Age</label>
+                                        <input name="age" value={formData.age} readOnly />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Gender *</label>
+                                        <input name="gender" value={formData.gender} onChange={handleChange} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Blood Group</label>
+                                        <input name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Address</label>
+                                        <input name="address" id="addressInput" value={formData.address} onChange={handleChange} />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Phone Number *</label>
+                                        <input name="contact" value={formData.contact} onChange={handleChange} required />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Emergency Contact Phone *</label>
+                                        <input name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} required />
+                                    </div>
+                                </div>
+                                <button type="button" className="submit-button" onClick={() => {
+                                    if (!formData.FirstName || !formData.LastName || !formData.dob || !formData.gender || !formData.contact || !formData.emergencyContact) {
+                                        alert("Please fill all required personal fields");
+                                    } else {
+                                        changeSection("medical");
+                                    }
+                                }}>
+                                    Next: Medical Background
+                                </button>
+                            </>
+                        )}
+                        {activeSection === "medical" && (
+                            <>
+                                <div className="form-group">
+                                    <label>Existing Medical Conditions *</label>
+                                    <input className="medical-input" name="conditions" value={formData.conditions} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Past Surgeries</label>
+                                    <input className="medical-input" name="surgeries" value={formData.surgeries} onChange={handleChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Reason for Visit *</label>
+                                    <input className="medical-input" name="reason" value={formData.reason} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Date of Visit *</label>
+                                    <input
+                                        type="date"
+                                        className="medical-input"
+                                        name="dateOfVisit"
+                                        value={formData.dateOfVisit}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                                <button type="button" className="submit-button" onClick={() => {
+                                    if (!formData.conditions || !formData.reason) {
+                                        alert("Please fill all required medical fields");
+                                    } else {
+                                        changeSection("insurance");
+                                    }
+                                }}>
+                                    Next: Insurance Details
+                                </button>
+                            </>
+                        )}
+                        {activeSection === "insurance" && (
+                            <>
+                                <div className="form-group">
+                                    <label>Insurance Provider Name</label>
+                                    <input className="insurance-input" name="insuranceProvider" value={formData.insuranceProvider} onChange={handleChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Policy Number</label>
+                                    <input className="insurance-input" name="policyNumber" value={formData.policyNumber} onChange={handleChange} />
+                                </div>
+                                <button type="submit" className="submit-button" disabled={progress !== 100}>
+                                    Submit
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </form>
             </div>
         </div>
