@@ -65,6 +65,15 @@
   margin-bottom: 10px;
 }
 
+.button-group button,
+.button-group button:focus,
+.button-group button:active,
+.button-group button:hover {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
 .patient-form {
   display: flex;
   flex-direction: column;
@@ -94,8 +103,21 @@
   border-radius: 4px;
 }
 
+#personal-info-btn {
+  width: 30%;
+  background-color: #007BFF;
+  color: #f9f9f9;
+  padding: 10px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  outline: none;
+
+}
+
 .submit-button {
-  width: 100%;
+  width: 30%;
   background-color: green;
   color: white;
   padding: 10px;
@@ -103,6 +125,8 @@
   border: none;
   border-radius: 4px;
   font-size: 16px;
+  outline: none;
+
 }
 
 .form-wrapper {
@@ -131,38 +155,58 @@ label {
 }
 
 input {
-  background-color: rgba(93, 91, 91, 0);
+  background-color: rgba(93, 91, 91, 0.112);
   height: 20px;
-}
-
-input {
-  background-color: rgba(93, 91, 91, 0.183);
-  height: 20px;
+  color: black;
 }
 
 .medical-input {
   height: 50px;
-  background-color: rgba(93, 91, 91, 0.183);
+  background-color: rgba(93, 91, 91, 0.112);
   /* margin-top: 10px; */
   margin-bottom: 15px;
+  color: black;
 
 }
 
 .insurance-input {
   height: 30px;
-  background-color: rgba(93, 91, 91, 0.183);
+  background-color: rrgba(93, 91, 91, 0.112);
   margin-bottom: 15px;
+  color: black;
 }
 
 #addressInput {
   width: 100%;
   height: 70px;
-  background-color: rgba(93, 91, 91, 0.183);
+  background-color: rgba(93, 91, 91, 0.112);
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 10px;
   font-size: 16px;
   box-sizing: border-box;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.section-button {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.active-section {
+  background-color: #007BFF;
+  color: white;
 }
 
 .button-group button {

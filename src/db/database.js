@@ -18,7 +18,8 @@ await db.exec(`
     surgeries TEXT,
     reason TEXT NOT NULL,
     insuranceprovider TEXT,
-    policynumber TEXT
+    policynumber TEXT,
+    dateOfVisit TEXT
   );
 `);
 

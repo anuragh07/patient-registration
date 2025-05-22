@@ -7,7 +7,7 @@ export default function PatientForm() {
         FirstName: "", LastName: "", dob: "", age: "", gender: "", bloodGroup: "",
         address: "", contact: "", emergencyContact: "",
         conditions: "", surgeries: "", reason: "",
-        insuranceProvider: "", policyNumber: ""
+        insuranceProvider: "", policyNumber: "", dateOfVisit: new Date().toISOString().split('T')[0]
     });
 
     const [activeSection, setActiveSection] = useState("personal");
@@ -17,7 +17,6 @@ export default function PatientForm() {
         const filledCount = requiredFields.reduce((count, field) => {
             return formData[field] && formData[field].toString().trim() !== "" ? count + 1 : count;
         }, 0);
-
         return Math.round((filledCount / requiredFields.length) * 100);
     };
 
@@ -25,60 +24,74 @@ export default function PatientForm() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         if (name === "dob") {
             const age = new Date().getFullYear() - new Date(value).getFullYear() - 1;
             setFormData({ ...formData, [name]: value, age });
         } else {
             setFormData({ ...formData, [name]: value });
         }
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const missing = requiredFields.filter(field => !formData[field]);
         if (missing.length) return alert(`Missing fields: ${missing.join(", ")}`);
-
         await db.exec(`
             INSERT INTO patients (
                 firstname, lastname, dob, age, gender, bloodGroup, address,
                 contact, emergencyContact, conditions, surgeries,
-                reason, insuranceProvider, policyNumber
+                reason, insuranceProvider, policyNumber, dateOfVisit
             ) VALUES (
                 '${formData.FirstName}', '${formData.LastName}', '${formData.dob}', ${formData.age || 'NULL'},
                 '${formData.gender}', '${formData.bloodGroup}', '${formData.address}',
                 '${formData.contact}', '${formData.emergencyContact}',
                 '${formData.conditions}', '${formData.surgeries}', '${formData.reason}',
-                '${formData.insuranceProvider}', '${formData.policyNumber}'
+                '${formData.insuranceProvider}', '${formData.policyNumber}', '${formData.dateOfVisit}'
             );
-        `);
-
+          `);
+        const res = await db.exec("SELECT * FROM patients");
+        console.log(res);
         alert("Patient registered!");
-
         setFormData({
             FirstName: "", LastName: "", dob: "", age: "", gender: "", bloodGroup: "",
             address: "", contact: "", emergencyContact: "",
             conditions: "", surgeries: "", reason: "",
-            insuranceProvider: "", policyNumber: ""
+            insuranceProvider: "", policyNumber: "",
+            dateOfVisit: new Date().toISOString().split('T')[0]
         });
+
         setActiveSection("personal");
+    };
+
+    const handleNext = () => {
+        if (activeSection === "personal") {
+            if (!formData.FirstName || !formData.LastName || !formData.dob || !formData.gender || !formData.contact || !formData.emergencyContact) {
+                alert("Please fill all required personal fields");
+                return;
+            }
+            setActiveSection("medical");
+        } else if (activeSection === "medical") {
+            if (!formData.conditions || !formData.reason) {
+                alert("Please fill all required medical fields");
+                return;
+            }
+            setActiveSection("insurance");
+        }
     };
 
     return (
         <div className="form-wrapper">
             <div className="form-container">
-
                 <div className="heading" style={{ backgroundColor: '#007BFF', color: 'white', padding: '10px 20px', borderRadius: '5px' }}>
                     <h2 className="form-title" style={{ textAlign: 'left', margin: 0 }}>Patient Registration</h2>
                 </div>
-
                 <p className="text" style={{ textAlign: 'left', maxWidth: '700px', margin: '10px auto' }}>
                     Please complete the form below with your personal, medical, and insurance information.
                 </p>
                 <p className="text2" style={{ textAlign: 'left', maxWidth: '700px', margin: '10px auto 20px' }}>
                     Fields marked with <span className="required">*</span> are required.
                 </p>
-
                 <div style={{
                     maxWidth: '700px',
                     margin: '0 auto 20px',
@@ -100,26 +113,25 @@ export default function PatientForm() {
                 <div style={{ maxWidth: '700px', margin: '0 auto 20px', textAlign: 'right', fontWeight: '600', color: '#007BFF' }}>
                     {progress}% completed
                 </div>
-
                 <div className="button-group">
                     <button
                         type="button"
                         onClick={() => setActiveSection("personal")}
-                        className={activeSection === "personal" ? "active-section" : ""}
+                        className={`section-button ${activeSection === "personal" ? "active-section" : ""}`}
                     >
                         Personal Information
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveSection("medical")}
-                        className={activeSection === "medical" ? "active-section" : ""}
+                        className={`section-button ${activeSection === "medical" ? "active-section" : ""}`}
                     >
-                        Medical History
+                        Medical Details
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveSection("insurance")}
-                        className={activeSection === "insurance" ? "active-section" : ""}
+                        className={`section-button ${activeSection === "insurance" ? "active-section" : ""}`}
                     >
                         Health Insurance
                     </button>
@@ -138,7 +150,6 @@ export default function PatientForm() {
                                     <input name="LastName" value={formData.LastName} onChange={handleChange} required />
                                 </div>
                             </div>
-
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Date of Birth *</label>
@@ -149,7 +160,6 @@ export default function PatientForm() {
                                     <input name="age" value={formData.age} readOnly />
                                 </div>
                             </div>
-
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Gender *</label>
@@ -160,21 +170,18 @@ export default function PatientForm() {
                                     <input name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
                                 </div>
                             </div>
-
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Address</label>
                                     <input name="address" id="addressInput" value={formData.address} onChange={handleChange} />
                                 </div>
                             </div>
-
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Phone Number *</label>
                                     <input name="contact" value={formData.contact} onChange={handleChange} required />
                                 </div>
                             </div>
-
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Emergency Contact Phone *</label>
@@ -183,7 +190,6 @@ export default function PatientForm() {
                             </div>
                         </>
                     )}
-
                     {activeSection === "medical" && (
                         <>
                             <div className="form-group">
@@ -198,14 +204,21 @@ export default function PatientForm() {
                                 <label>Reason for Visit *</label>
                                 <input className="medical-input" name="reason" value={formData.reason} onChange={handleChange} required />
                             </div>
+                            <div className="form-group">
+                                <label>Date of Visit *</label>
+                                <input
+                                    type="date"
+                                    className="medical-input"
+                                    name="dateOfVisit"
+                                    value={formData.dateOfVisit}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
                         </>
                     )}
-
                     {activeSection === "insurance" && (
                         <>
-                            <p className="textInsurance" style={{ textAlign: 'left' }}>
-                                Insurance information is optional. If you don't have insurance or prefer not to provide this information now, you can skip this section.
-                            </p>
                             <div className="form-group">
                                 <label>Insurance Provider Name</label>
                                 <input className="insurance-input" name="insuranceProvider" value={formData.insuranceProvider} onChange={handleChange} />
@@ -216,8 +229,36 @@ export default function PatientForm() {
                             </div>
                         </>
                     )}
+                    {activeSection === "personal" && (
+                        <button type="button" className="submit-button" onClick={() => {
+                            if (!formData.FirstName || !formData.LastName || !formData.dob || !formData.gender || !formData.contact || !formData.emergencyContact) {
+                                alert("Please fill all required personal fields");
+                            } else {
+                                setActiveSection("medical");
+                            }
+                        }}>
+                            Next: Medical Background
+                        </button>
+                    )}
 
-                    <button type="submit" className="submit-button">Submit</button>
+                    {activeSection === "medical" && (
+                        <button type="button" className="submit-button" onClick={() => {
+                            if (!formData.conditions || !formData.reason) {
+                                alert("Please fill all required medical fields");
+                            } else {
+                                setActiveSection("insurance");
+                            }
+                        }}>
+                            Next: Insurance Details
+                        </button>
+                    )}
+
+                    {activeSection === "insurance" && (
+                        <button type="submit" className="submit-button" disabled={progress !== 100}>
+                            Submit
+                        </button>
+                    )}
+
                 </form>
             </div>
         </div>
