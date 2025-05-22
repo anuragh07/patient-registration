@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import db from "../db/database";
 
 export default function PatientForm() {
     const [formData, setFormData] = useState({
@@ -28,13 +28,26 @@ export default function PatientForm() {
         const missing = required.filter(field => !formData[field]);
         if (missing.length) return alert(`Missing fields: ${missing.join(", ")}`);
 
+        await db.exec(`
+            INSERT INTO patients ( name, contact, dob, age, bloodGroup, gender, address, emergencyContact, conditions, surgeries, reason, insuranceProvider, policyNumber
+            ) VALUES (
+            '${formData.name}','${formData.contact}', '${formData.dob}', ${formData.age || 'NULL'}, '${formData.bloodGroup}',
+            '${formData.gender}','${formData.address}', '${formData.emergencyContact}', '${formData.conditions}',
+            '${formData.surgeries}', '${formData.reason}', '${formData.insuranceProvider}', '${formData.policyNumber}'
+            );
+        `);
 
+        const result = await db.exec("SELECT * FROM patients");
+        console.log("Patient Table Data:", result);
 
+        alert("Patient registered!");
 
+        setFormData({
+            name: "", contact: "", dob: "", age: "", bloodGroup: "", gender: "",
+            address: "", emergencyContact: "", conditions: "", surgeries: "",
+            reason: "", insuranceProvider: "", policyNumber: ""
+        });
     };
-
-
-
 
     return (
         <form onSubmit={handleSubmit} style={{ maxWidth: "600px", margin: "auto" }}>
@@ -57,7 +70,6 @@ export default function PatientForm() {
                 <div key={name} style={{ marginBottom: "10px" }}>
                     <label>{label}</label><br />
                     <input
-
                         type={type}
                         name={name}
                         value={formData[name]}
