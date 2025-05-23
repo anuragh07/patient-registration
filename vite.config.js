@@ -8,4 +8,5 @@ export default defineConfig({
     // This is the crucial part for PGLite
     exclude: ['@electric-sql/pglite'],
   },
+  base: process.env.VITE_BASE_PATH || "/patient-registration"
 })
