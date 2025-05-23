@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import db from "../db/database";
 import '../App.css';
-
+import '../components/SqlQueryExecutor'
 export default function PatientForm() {
+    const [showSqlExecutor, setShowSqlExecutor] = useState(false);
+
     const initialFormData = {
         FirstName: "",
         LastName: "",
