@@ -29,12 +29,14 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  justify-content: center;
+  align-items: center;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  /* If you want the body background to also be transparent, ensure no other styles override it.
-     The :root background often applies to the body implicitly if not set on body explicitly. */
+  background-color: rgba(240, 248, 255, 0.927);
 }
+
 
 h1 {
   font-size: 3.2em;

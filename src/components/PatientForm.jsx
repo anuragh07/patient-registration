@@ -3,8 +3,6 @@ import db from "../db/database";
 import '../App.css';
 import '../components/SqlQueryExecutor'
 export default function PatientForm() {
-    const [showSqlExecutor, setShowSqlExecutor] = useState(false);
-
     const initialFormData = {
         FirstName: "",
         LastName: "",
@@ -91,6 +89,7 @@ export default function PatientForm() {
         const missing = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === "");
         if (missing.length) return alert(`Missing fields: ${missing.join(", ")}`);
 
+
         try {
             await db.exec(`
         INSERT INTO patients (
@@ -106,8 +105,9 @@ export default function PatientForm() {
         );
       `);
 
-            const res = await db.exec("SELECT * FROM patients");
-            console.log(res);
+
+            // const res = await db.exec("SELECT * FROM patients");
+            // console.log(res);
 
             alert("Patient registered!");
             setFormData(initialFormData);
@@ -231,20 +231,36 @@ export default function PatientForm() {
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label>Gender <span className="required">*</span></label>
-                                        <input
+                                        <select
                                             name="gender"
                                             value={formData.gender}
                                             onChange={handleChange}
                                             required
-                                        />
+                                        >
+                                            <option value="">Select Gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
                                     </div>
+
                                     <div className="form-group">
                                         <label>Blood Group</label>
-                                        <input
+                                        <select
                                             name="bloodGroup"
                                             value={formData.bloodGroup}
                                             onChange={handleChange}
-                                        />
+                                        >
+                                            <option value="">Select Blood Group</option>
+                                            <option value="A+">A+</option>
+                                            <option value="A-">A-</option>
+                                            <option value="B+">B+</option>
+                                            <option value="B-">B-</option>
+                                            <option value="AB+">AB+</option>
+                                            <option value="AB-">AB-</option>
+                                            <option value="O+">O+</option>
+                                            <option value="O-">O-</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="form-row">
@@ -286,7 +302,6 @@ export default function PatientForm() {
                                     type="button"
                                     className="submit-button"
                                     onClick={() => {
-                                        // Validate personal required fields
                                         const personalRequired = ["FirstName", "LastName", "dob", "gender", "contact", "emergencyContact"];
                                         const missingPersonal = personalRequired.filter(field => !formData[field] || formData[field].toString().trim() === "");
                                         if (missingPersonal.length) {
@@ -372,8 +387,9 @@ export default function PatientForm() {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Policy Number</label>
+                                    <label id="policy-name">Policy Number</label>
                                     <input
+                                        id="policy-input"
                                         name="policyNumber"
                                         value={formData.policyNumber}
                                         onChange={handleChange}

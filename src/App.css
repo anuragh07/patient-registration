@@ -414,39 +414,62 @@ input {
 }
 
 .main-menu {
-  max-width: 800px;
-  margin: 50px auto;
-  text-align: center;
-  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
   background-color: white;
-  border-radius: 10px;
-  height: 62vh;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+  height: 400px;
+  margin: auto;
+  width: 500px;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
 }
 
-.main-menu h1 {
+.animated-heading {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid black;
+  font-size: 2rem;
+  width: fit-content;
   color: #007BFF;
-  margin-bottom: 40px;
-  font-size: 2.5rem;
+  letter-spacing: 2px;
+  animation: typing 2s steps(10, end), blink 0.7s step-end infinite;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 8ch;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
 }
 
 .button-container {
   display: flex;
-  flex-direction: column;
+  width: 100%;
   gap: 20px;
-  max-width: 400px;
-  margin: 0 auto;
+  flex-direction: column;
 }
 
 .nav-button {
-  padding: 15px 30px;
-  font-size: 1.1rem;
+  padding: 12px 24px;
+  font-size: 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  transition: background-color 0.3s ease;
 }
 
 .nav-button.primary {
@@ -460,8 +483,7 @@ input {
 }
 
 .nav-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
 }
 
 .nav-button.primary:hover {
@@ -488,6 +510,7 @@ button.nav-button:hover {
   background-color: rgba(93, 91, 91, 0.112);
   border-radius: 8px;
   padding: 10px;
+  color: black;
 }
 
 .sql-submit-btn {
@@ -501,4 +524,20 @@ button.nav-button:hover {
   cursor: pointer;
   border: none;
   margin-bottom: 15px;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  height: 45px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: rgba(93, 91, 91, 0.112);
+  font-size: 16px;
+  color: #333;
+  appearance: none;
+}
+
+#policy-name {
+  margin-top: 15px;
 }

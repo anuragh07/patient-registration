@@ -12,6 +12,7 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.3.2",
     "@electric-sql/pglite-react": "^0.2.20",
+    "jspdf": "^3.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0"
