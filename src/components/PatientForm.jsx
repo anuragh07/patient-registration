@@ -3,12 +3,21 @@ import db from "../db/database";
 import '../App.css';
 
 export default function PatientForm() {
-    const [formData, setFormData] = useState({
-        FirstName: "", LastName: "", dob: "", age: "", gender: "", bloodGroup: "",
-        address: "", contact: "", emergencyContact: "",
-        conditions: "", surgeries: "", reason: "",
-        insuranceProvider: "", policyNumber: "", dateOfVisit: new Date().toISOString().split('T')[0]
+    const [formData, setFormData] = useState(() => {
+        const saved = localStorage.getItem("patientFormData");
+        return saved ? JSON.parse(saved) : {
+            FirstName: "", LastName: "", dob: "", age: "", gender: "", bloodGroup: "",
+            address: "", contact: "", emergencyContact: "",
+            conditions: "", surgeries: "", reason: "",
+            insuranceProvider: "", policyNumber: "",
+            dateOfVisit: new Date().toISOString().split('T')[0]
+        };
     });
+
+
+    useEffect(() => {
+        localStorage.setItem("patientFormData", JSON.stringify(formData));
+    }, [formData]);
 
     const [activeSection, setActiveSection] = useState("personal");
     const [fadeKey, setFadeKey] = useState(0);
@@ -54,20 +63,22 @@ export default function PatientForm() {
         const res = await db.exec("SELECT * FROM patients");
         console.log(res);
         alert("Patient registered!");
-        setFormData({
+        const resetData = {
             FirstName: "", LastName: "", dob: "", age: "", gender: "", bloodGroup: "",
             address: "", contact: "", emergencyContact: "",
             conditions: "", surgeries: "", reason: "",
             insuranceProvider: "", policyNumber: "",
             dateOfVisit: new Date().toISOString().split('T')[0]
-        });
-
+        };
+        setFormData(resetData);
+        localStorage.setItem("patientFormData", JSON.stringify(resetData));
         setActiveSection("personal");
+
     };
 
     const changeSection = (section) => {
         setActiveSection(section);
-        setFadeKey(prev => prev + 1);  // trigger animation by key change
+        setFadeKey(prev => prev + 1);
     };
 
     return (
