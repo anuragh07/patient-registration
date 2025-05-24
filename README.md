@@ -45,6 +45,13 @@ The main page contains two buttons namely "Patient Registration Form" and "Query
 **HTML 5 and CSS 3**
 **JavaScript**
 
+## Challenges faced
+- Faced challanges in integrating PgLite Database into a Vite + React Application
+- Encountered database errors, which were overcome by debugging the code
+- Multiple tab synchronization was a new concept to me, so I had to research it before implementing it in the application
+- Faced issues while retrieving data using Raw SQL and displaying it on the UI
+- Spent a significant amount of time creating a progress bar
+- Managing form input data dynamically, while ensuring smooth user experience
 
 
 
