@@ -15,7 +15,7 @@ The main page contains two buttons namely "Patient Registration Form" and "Query
 
 ## Setup
  ```bash
-   git clone https://github.com/anuragh07/patient-registration-form.git
+   git clone https://github.com/anuragh07/patient-registration.git
    cd patient-registration
    npm install
    npm run dev
