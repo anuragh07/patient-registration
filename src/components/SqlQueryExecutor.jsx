@@ -70,8 +70,8 @@ const SQLQueryExecutor = () => {
                         </button>
                     </div>
 
-                    {error && <div className="textInsurance" style={{ color: "red" }}>{error}</div>}
-                    {infoMessage && <div className="textInsurance" style={{ color: "green" }}>{infoMessage}</div>}
+                    {error && <div className="textInsurance" style={{ color: "red", display: "flex", justifyContent: "center", marginTop: "10px" }}>{error}</div>}
+                    {infoMessage && <div className="textInsurance" style={{ color: "green", display: "flex", justifyContent: "center", marginTop: "10px" }}>{infoMessage}</div>}
 
                     {Array.isArray(result) && result.length > 0 && (
                         <div className="results-container">

@@ -46,6 +46,8 @@ export default function PatientForm() {
         };
     }, []);
 
+    const [showSuccess, setShowSuccess] = useState(false);
+
     const [activeSection, setActiveSection] = useState("personal");
     const [fadeKey, setFadeKey] = useState(0);
     const requiredFields = ["FirstName", "LastName", "dob", "gender", "contact", "emergencyContact", "conditions", "reason"];
@@ -109,7 +111,8 @@ export default function PatientForm() {
             // const res = await db.exec("SELECT * FROM patients");
             // console.log(res);
 
-            alert("Patient registered!");
+            // alert("Patient registered!");
+            setShowSuccess(true);
             setFormData(initialFormData);
             setActiveSection("personal");
             setFadeKey(prev => prev + 1);
@@ -409,9 +412,29 @@ export default function PatientForm() {
 
                             </>
                         )}
+                        {showSuccess && (
+                            <div className="success-popup-overlay">
+                                <div className="success-popup">
+                                    <div className="popup-content">
+                                        <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                        </svg>
+                                        <h3>Patient Registered Successfully!</h3>
+                                        <button
+                                            className="close-popup-button"
+                                            onClick={() => setShowSuccess(false)}
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </form>
             </div>
         </div>
+
     );
 }
