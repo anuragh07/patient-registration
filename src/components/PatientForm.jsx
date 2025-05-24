@@ -54,7 +54,10 @@ export default function PatientForm() {
 
     const calculateProgress = () => {
         const filledCount = requiredFields.reduce((count, field) => {
-            return formData[field] && formData[field].toString().trim() !== "" ? count + 1 : count;
+            if (field === "contact" || field === "emergencyContact") {
+                return formData[field]?.toString().trim().length === 10 ? count + 1 : count;
+            }
+            return formData[field]?.toString().trim() ? count + 1 : count;
         }, 0);
         return Math.round((filledCount / requiredFields.length) * 100);
     };
@@ -80,6 +83,9 @@ export default function PatientForm() {
         if (name === "dob") {
             const age = calculateAge(value);
             setFormData(prev => ({ ...prev, dob: value, age }));
+        } else if (name === "contact" || name === "emergencyContact") {
+            const numericValue = value.replace(/\D/g, '').slice(0, 10);
+            setFormData(prev => ({ ...prev, [name]: numericValue }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -88,8 +94,15 @@ export default function PatientForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const missing = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === "");
-        if (missing.length) return alert(`Missing fields: ${missing.join(", ")}`);
+        const missing = requiredFields.filter(field => {
+            const value = formData[field];
+            if (field === "contact" || field === "emergencyContact") {
+                return !value || value.toString().trim().length !== 10;
+            }
+            return !value || value.toString().trim() === "";
+        });
+
+        if (missing.length) return alert(`Invalid or missing fields: ${missing.join(", ")}`);
 
 
         try {
@@ -286,9 +299,16 @@ export default function PatientForm() {
                                             onChange={handleChange}
                                             required
                                             autoComplete="tel"
+                                            maxLength="10"
+                                            pattern="\d{10}"
+                                            title="Please enter exactly 10 digits"
                                         />
+                                        {formData.contact.length !== 10 && formData.contact.length > 0 && (
+                                            <span className="error-message">Must be 10 digits</span>
+                                        )}
                                     </div>
                                 </div>
+
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label>Emergency Contact Phone <span className="required">*</span></label>
@@ -298,7 +318,13 @@ export default function PatientForm() {
                                             onChange={handleChange}
                                             required
                                             autoComplete="tel"
+                                            maxLength="10"
+                                            pattern="\d{10}"
+                                            title="Please enter exactly 10 digits"
                                         />
+                                        {formData.emergencyContact.length !== 10 && formData.emergencyContact.length > 0 && (
+                                            <span className="error-message">Must be 10 digits</span>
+                                        )}
                                     </div>
                                 </div>
                                 <button
