@@ -13,17 +13,6 @@ The main page contains two buttons namely "Patient Registration Form" and "Query
 - Schema is provided in the same page where you execute your SQL Queries
 - Responsive and user-friendly interface
 
-## Project Structure
-src/
-├── components/
-|__
-  └── PatientForm.jsx
-│ └── SqlQueryExecutor.jsx 
-├── db/
-│ └── database.js
-├── App.css 
-├── App.jsx
-
 ## Setup
  ```bash
    git clone https://github.com/anuragh07/patient-registration-form.git
