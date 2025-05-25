@@ -53,5 +53,8 @@ The main page contains two buttons namely "Patient Registration Form" and "Query
 - Spent a significant amount of time creating a progress bar
 - Managing form input data dynamically, while ensuring smooth user experience
 
+## Limitations
+Even though there is multiple tab synchronization enabled (Only for the live data being entered), the data will not be shared across multiple tabs as a local in-memory database or IndexedDB is being used. Meaning each tab will have its own isolated instance of the database.
+
 
 
