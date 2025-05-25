@@ -18,9 +18,18 @@ const SQLQueryExecutor = () => {
 
             const queryResult = await db.query(query);
             console.log("Query result:", queryResult);
+            const enhancedResults = queryResult.rows?.map(row => {
+                if (row.age_months !== undefined) {
+                    return {
+                        ...row,
+                        age_years: (row.age_months / 12).toFixed(1)
+                    };
+                }
+                return row;
+            }) || [];
 
-            if (queryResult.rows && queryResult.rows.length > 0) {
-                setResult(queryResult.rows);
+            if (enhancedResults.length > 0) {
+                setResult(enhancedResults);
             } else if (queryResult.affectedRows >= 0) {
                 setInfoMessage(`Query executed successfully. Rows affected: ${queryResult.affectedRows}`);
             } else {
@@ -38,7 +47,6 @@ const SQLQueryExecutor = () => {
                 <div className="form-container">
                     <div className="heading">
                         <h2 className="form-title">Query Records Using Raw SQL</h2>
-
                     </div>
                     <p style={{ marginTop: "10px", color: "black", fontSize: "15px" }}>
                         <span

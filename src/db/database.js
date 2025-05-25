@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-// import { PGliteProvider, usePGlite, useLiveQuery } from '@electric-sql/pglite-react';
+
 const db = new PGlite('idb://my-pgdata');
 
 await db.exec(`
@@ -9,7 +9,7 @@ await db.exec(`
     lastname TEXT NOT NULL,
     contact TEXT NOT NULL,
     dob TEXT NOT NULL,
-    age INTEGER,
+    age_months INTEGER NOT NULL,
     bloodgroup TEXT,
     gender TEXT NOT NULL,
     address TEXT,
@@ -22,6 +22,4 @@ await db.exec(`
     dateOfVisit TEXT
   );
 `);
-
-
 export default db;
