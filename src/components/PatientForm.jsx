@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import db from "../db/database";
+import db from "../db/database"; // Assuming this is your client-side database
 import '../App.css';
-import '../components/SqlQueryExecutor';
+import '../components/SqlQueryExecutor'; // This import might be for another component, kept as is
 
 export default function PatientForm() {
     const initialFormData = {
@@ -21,6 +21,7 @@ export default function PatientForm() {
         policyNumber: "",
         dateOfVisit: new Date().toISOString().split('T')[0],
     };
+    const [isFormActive, setIsFormActive] = useState(true); // This state seems unused, but keeping it as is
 
     const calculateAge = (dobValue) => {
         if (!dobValue) return 0;
@@ -33,9 +34,6 @@ export default function PatientForm() {
         if (today.getDate() < dobDate.getDate()) {
             months--;
         }
-        // if (months <= 12) {
-        // return `{months} months`
-        // }
         return Math.max(months, 0);
     };
 
@@ -59,15 +57,58 @@ export default function PatientForm() {
     }, [formData]);
 
     useEffect(() => {
-        function handleStorageChange(event) {
+        function handleFormDataChange(event) {
             if (event.key === "patientFormData" && event.newValue) {
                 setFormData(JSON.parse(event.newValue));
             }
         }
+        function handleSuccessPopup(event) {
+            if (event.key === "patientRegistered" && event.newValue) {
+                setShowSuccess(true);
+                localStorage.removeItem("patientRegistered");
+            }
+        }
 
-        window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
+        window.addEventListener("storage", handleFormDataChange);
+        window.addEventListener("storage", handleSuccessPopup);
+
+        return () => {
+            window.removeEventListener("storage", handleFormDataChange);
+            window.removeEventListener("storage", handleSuccessPopup);
+        };
+    }, [])
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                const savedData = localStorage.getItem("patientFormData");
+                if (savedData) setFormData(JSON.parse(savedData));
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, []);
+
+    // New useEffect for BroadcastChannel
+    useEffect(() => {
+        const channel = new BroadcastChannel('patient-db-updates');
+
+        channel.onmessage = (event) => {
+            if (event.data && event.data.type === 'patient-registered') {
+                console.log('Database updated in another tab. Consider re-fetching patient data.');
+                // TODO: Re-fetch patient list or relevant data here
+                // Example: If you have a function to load all patients from the DB, call it here.
+                // e.g., loadAllPatients();
+            }
+        };
+
+        // Clean up the channel when the component unmounts
+        return () => {
+            channel.close();
+        };
+    }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
+
 
     const [showSuccess, setShowSuccess] = useState(false);
     const [activeSection, setActiveSection] = useState("personal");
@@ -125,21 +166,25 @@ export default function PatientForm() {
         });
 
         if (missing.length) return alert(`Invalid or missing fields: ${missing.join(", ")}`);
+
+        // Create a BroadcastChannel instance
+        const channel = new BroadcastChannel('patient-db-updates');
+
         try {
             await db.exec(`
                 INSERT INTO patients (
-                  firstname, lastname, contact, dob, age_months, 
+                  firstname, lastname, contact, dob, age_months,
                   bloodgroup, gender, address, emergencycontact,
                   conditions, surgeries, reason, insuranceprovider,
                   policynumber, dateOfVisit
                 ) VALUES (
-                  '${formData.FirstName}', '${formData.LastName}', 
-                  '${formData.contact}', '${formData.dob}', 
-                  ${formData.ageMonths}, '${formData.bloodGroup}', 
-                  '${formData.gender}', '${formData.address}', 
-                  '${formData.emergencyContact}', '${formData.conditions}', 
-                  '${formData.surgeries}', '${formData.reason}', 
-                  '${formData.insuranceProvider}', '${formData.policyNumber}', 
+                  '${formData.FirstName}', '${formData.LastName}',
+                  '${formData.contact}', '${formData.dob}',
+                  ${formData.ageMonths}, '${formData.bloodGroup}',
+                  '${formData.gender}', '${formData.address}',
+                  '${formData.emergencyContact}', '${formData.conditions}',
+                  '${formData.surgeries}', '${formData.reason}',
+                  '${formData.insuranceProvider}', '${formData.policyNumber}',
                   '${formData.dateOfVisit}'
                 );
               `);
@@ -148,9 +193,16 @@ export default function PatientForm() {
             setFormData(initialFormData);
             setActiveSection("personal");
             setFadeKey(prev => prev + 1);
+            localStorage.setItem('patientRegistered', Date.now()); // For success popup specific to the tab
+
+            // Notify other tabs that the database has been updated
+            channel.postMessage({ type: 'patient-registered' });
+
         } catch (error) {
             alert("Failed to register patient. Please try again.");
             console.error(error);
+        } finally {
+            channel.close(); // Close the channel after sending the message
         }
     };
 
@@ -335,7 +387,10 @@ export default function PatientForm() {
                                             <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
                                         </svg>
                                         <h3>Patient Registered Successfully!</h3>
-                                        <button className="close-popup-button" onClick={() => setShowSuccess(false)}>
+                                        <button className="close-popup-button" onClick={() => {
+                                            setShowSuccess(false)
+                                            localStorage.removeItem('patientRegistered');
+                                        }}>
                                             Close
                                         </button>
                                     </div>

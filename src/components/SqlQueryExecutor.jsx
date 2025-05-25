@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import db from '../db/database';
 import schemaImage from '../assets/Schema - 2.png';
 
@@ -9,15 +10,42 @@ const SQLQueryExecutor = () => {
     const [infoMessage, setInfoMessage] = useState('');
     const [showSchema, setShowSchema] = useState(false);
 
-    const handleQuerySubmit = async () => {
-        console.log("Executing query:", query);
+    useEffect(() => {
+        const savedQuery = localStorage.getItem('sqlQuery');
+        if (savedQuery) {
+            setQuery(savedQuery);
+        }
+
+        const handleStorageChange = (event) => {
+            if (event.key === 'sqlQuery') {
+                setQuery(event.newValue || '');
+                if (event.newValue) {
+                    handleQuerySubmit(event.newValue);
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    const handleQuerySubmit = async (rawQuery = null) => {
+        const finalQuery = rawQuery || query;
+        console.log("Executing query:", finalQuery);
+
         try {
             setError('');
             setResult(null);
             setInfoMessage('');
 
-            const queryResult = await db.query(query);
+            if (!rawQuery) {
+                localStorage.setItem('sqlQuery', finalQuery);
+                window.dispatchEvent(new Event('storage'));
+            }
+
+            const queryResult = await db.query(finalQuery);
             console.log("Query result:", queryResult);
+
             const enhancedResults = queryResult.rows?.map(row => {
                 if (row.age_months !== undefined) {
                     return {
@@ -41,6 +69,11 @@ const SQLQueryExecutor = () => {
         }
     };
 
+    const handleQueryChange = (value) => {
+        setQuery(value);
+        localStorage.setItem('sqlQuery', value);
+    };
+
     return (
         <>
             <div className={`page-wrapper ${showSchema ? 'blur-background' : ''}`}>
@@ -59,7 +92,7 @@ const SQLQueryExecutor = () => {
                         >
                             Click Here
                         </span>{" "}
-                        to view the Schema.
+                        to view the Schema. <span style={{ color: '#666', fontSize: '12px' }}>(Changes sync across tabs)</span>
                     </p>
 
                     <div className="form-group">
@@ -67,13 +100,13 @@ const SQLQueryExecutor = () => {
                         <textarea
                             className="sql-query-input"
                             value={query}
-                            onChange={(e) => setQuery(e.target.value)}
+                            onChange={(e) => handleQueryChange(e.target.value)}
                             placeholder="Enter SQL query here..."
                         />
                     </div>
 
                     <div className="button-group">
-                        <button className="sql-submit-btn" onClick={handleQuerySubmit}>
+                        <button className="sql-submit-btn" onClick={() => handleQuerySubmit()}>
                             Execute Query
                         </button>
                     </div>
