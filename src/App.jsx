@@ -7,7 +7,7 @@ function MainMenu() {
 
   return (
     <div className="main-menu">
-      <h1 className="animated-heading">Welcome. . . !</h1>
+      <h1 className="animated-heading">Welcome!</h1>
 
       <div className="button-container">
         <button className="nav-button primary" onClick={() => navigate('/form')}>

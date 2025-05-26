@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import db from '../db/database';
 import schemaImage from '../assets/Schema - 2.png';
 
@@ -9,28 +8,15 @@ const SQLQueryExecutor = () => {
     const [error, setError] = useState('');
     const [infoMessage, setInfoMessage] = useState('');
     const [showSchema, setShowSchema] = useState(false);
+    const queryRef = useRef(query);
 
     useEffect(() => {
-        const savedQuery = localStorage.getItem('sqlQuery');
-        if (savedQuery) {
-            setQuery(savedQuery);
-        }
+        queryRef.current = query;
+    }, [query]);
 
-        const handleStorageChange = (event) => {
-            if (event.key === 'sqlQuery') {
-                setQuery(event.newValue || '');
-                if (event.newValue) {
-                    handleQuerySubmit(event.newValue);
-                }
-            }
-        };
 
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
-
-    const handleQuerySubmit = async (rawQuery = null) => {
-        const finalQuery = rawQuery || query;
+    const handleQuerySubmit = useCallback(async (rawQuery = null) => {
+        const finalQuery = rawQuery || queryRef.current;
         console.log("Executing query:", finalQuery);
 
         try {
@@ -40,7 +26,10 @@ const SQLQueryExecutor = () => {
 
             if (!rawQuery) {
                 localStorage.setItem('sqlQuery', finalQuery);
-                window.dispatchEvent(new Event('storage'));
+            }
+            if (finalQuery.trim() === '') {
+                setInfoMessage('No query to execute.');
+                return;
             }
 
             const queryResult = await db.query(finalQuery);
@@ -48,9 +37,22 @@ const SQLQueryExecutor = () => {
 
             const enhancedResults = queryResult.rows?.map(row => {
                 if (row.age_months !== undefined) {
+                    const months = parseInt(row.age_months, 10);
+                    const years = Math.floor(months / 12);
+                    const remainingMonths = months % 12;
+                    let ageDisplay = '';
+                    if (years > 0) {
+                        ageDisplay += `${years} year${years !== 1 ? 's' : ''}`;
+                    }
+                    if (remainingMonths > 0) {
+                        ageDisplay += `${years > 0 ? ' ' : ''}${remainingMonths} month${remainingMonths !== 1 ? 's' : ''}`;
+                    }
+                    if (years === 0 && remainingMonths === 0 && months === 0) {
+                        ageDisplay = '0 months';
+                    }
                     return {
                         ...row,
-                        age_years: (row.age_months / 12).toFixed(1)
+                        display_age: ageDisplay
                     };
                 }
                 return row;
@@ -67,7 +69,42 @@ const SQLQueryExecutor = () => {
             console.error("Query error:", err);
             setError(`SQL Error: ${err.message}`);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        const savedQuery = localStorage.getItem('sqlQuery');
+        if (savedQuery) {
+            setQuery(savedQuery);
+            handleQuerySubmit(savedQuery);
+        }
+
+        const handleStorageChange = (event) => {
+            if (event.key === 'sqlQuery') {
+                const newQueryValue = event.newValue || '';
+                setQuery(newQueryValue);
+                handleQuerySubmit(newQueryValue);
+            }
+        };
+
+        const channel = new BroadcastChannel('patient-db-updates');
+        channel.onmessage = (event) => {
+            if (event.data && event.data.type === 'patient-registered') {
+                console.log('Patient registered in another tab. Re-executing current query (if any).');
+                if (queryRef.current.trim() !== '') {
+                    handleQuerySubmit(queryRef.current);
+                } else if (savedQuery) {
+                    handleQuerySubmit(savedQuery);
+                }
+            }
+        };
+
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            channel.close();
+        };
+    }, [handleQuerySubmit]);
 
     const handleQueryChange = (value) => {
         setQuery(value);
@@ -92,7 +129,7 @@ const SQLQueryExecutor = () => {
                         >
                             Click Here
                         </span>{" "}
-                        to view the Schema. <span style={{ color: '#666', fontSize: '12px' }}>(Changes sync across tabs)</span>
+                        to view the Schema. <span style={{ color: '#666', fontSize: '12px' }}></span>
                     </p>
 
                     <div className="form-group">
